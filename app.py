@@ -37,6 +37,6 @@ def home():
     x = str(request.args['text'])
     cr=convert(x)
     try:
-        return cr
+        return str(cr)
     except KeyError:
         return 'bye'
