@@ -2,4 +2,4 @@ flask
 datetime
 python-dateutil
 gunicorn
-"sunpy"
+sunpy
