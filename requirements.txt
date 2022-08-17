@@ -9,3 +9,4 @@ scipy
 astropy
 beautifulsoup4
 requests
+matplotlib
