@@ -3,3 +3,8 @@ datetime
 python-dateutil
 gunicorn
 sunpy
+pfsspy
+numpy
+scipy
+astropy
+beautifulsoup4
