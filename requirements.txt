@@ -8,5 +8,6 @@ numpy
 scipy
 astropy
 beautifulsoup4
+bs4
 requests
 matplotlib
