@@ -18,6 +18,6 @@ def home():
     x = str(request.args['text'])
     y=parser.parse(x, fuzzy=True)
     try:
-        return y
+        return "done"
     except KeyError:
         return 'bye'
