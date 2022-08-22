@@ -158,7 +158,7 @@ def func(cr=2053):
     #%% Generating fieldlines and tracing it
 
     print('\n\nTracing field lines ... ... ...')
-    tracer = tracing.FortranTracer(max_steps=1000, step_size=0.03)  # can play around here
+    tracer = tracing.FortranTracer(max_steps=100, step_size=0.03)  # can play around here
     field_lines = tracer.trace(seeds, output)
 
 
