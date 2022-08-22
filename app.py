@@ -224,9 +224,9 @@ def func(cr=2053):
     ### NOTE: Here, Br_rss is containing 2D magnetic field information, but it's a 1D list.
     #         But you also have the corresponding latitude and longitude list. Use it.
     #%%
-    plt.scatter(lon_rcp, Br_rss, s=3)
+    #plt.scatter(lon_rcp, Br_rss, s=3)
     #plt.show()
-    plt.savefig("./static/images/output.png")
+    #plt.savefig("./static/images/output.png")
     
     if (Br_rss):
         return "success"
@@ -242,13 +242,17 @@ def home():
     ret=func(int(cr))
     print(ret)
     try:
-        if ret=="success":
+        '''if ret=="success":
             return flask.send_file('./static/images/output.png', mimetype='image/png')
         else:
             return flask.jsonify(
                 {"cr number" : str(cr),
                  "ret" : ret}
-                )
+                )'''
+        return flask.jsonify(
+            {"cr number" : str(cr),
+             "ret" : ret}
+            )
     except KeyError:
         return 'bye'
 #class A:
