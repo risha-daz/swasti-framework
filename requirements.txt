@@ -2,7 +2,7 @@ flask
 datetime
 python-dateutil
 gunicorn
-sunpy
+"sunpy"==4.0.4
 pfsspy
 numpy
 scipy

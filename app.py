@@ -35,8 +35,8 @@ import requests
 from bs4 import BeautifulSoup
 import html5lib
 
-import sys
-import os
+#import sys
+#import os
 
 
 def convert(x):
