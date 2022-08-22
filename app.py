@@ -33,8 +33,7 @@ from scipy.interpolate import interp1d
 
 import requests
 from bs4 import BeautifulSoup
-import lxml
-
+import html5lib
 
 def convert(x):
     y=0
@@ -60,7 +59,7 @@ r = requests.get(URL)
 cr = 2053           # Carrignton rotation number
 mag = 'GONG'        # Magnetogram type (GONG/HMI)
 
-soup = BeautifulSoup(r.content, 'lxml')
+soup = BeautifulSoup(r.content, 'html5lib')
 
 alla=soup.find_all("a", href=True)
 data = '' 
