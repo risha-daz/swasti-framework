@@ -79,7 +79,7 @@ def func(cr=2053):
 
     mag == 'GONG'
     gong_map = sunpy.map.Map(fileurl)
-    header = sunpy.io.fits.get_header(fileurl)
+    #header = sunpy.io.fits.get_header(fileurl)
 
     # transforming fits file into sunpy map
     input_map = sunpy.map.Map(gong_map.data- np.mean(gong_map.data), gong_map.meta)
@@ -97,7 +97,7 @@ def func(cr=2053):
     #%% Plotting
 
     # Input map at 1.0 R
-    m = input.map
+    #m = input.map
     #fig = plt.figure()
     #ax = plt.subplot(projection=m)
     #m.plot(vmax=-50, vmin =50)
@@ -105,7 +105,7 @@ def func(cr=2053):
     #ax.set_title('Input field')
 
     # Output map at 2.5 R
-    ss_br = output.source_surface_br
+    #ss_br = output.source_surface_br
     #fig = plt.figure()
     #ax = plt.subplot(projection=ss_br)
 
@@ -135,7 +135,7 @@ def func(cr=2053):
     for t in obs_time:
         #obst = Time(t, format='jd')
        coord = sunpy.coordinates.ephemeris.get_earth(time=t).transform_to(frames.HeliographicCarrington(observer='earth'))
-       coord2 = sunpy.coordinates.ephemeris.get_earth(time=t).transform_to(output.coordinate_frame)
+       #coord2 = sunpy.coordinates.ephemeris.get_earth(time=t).transform_to(output.coordinate_frame)
        SBElat[i] = coord.lat.value * np.pi/180
        SBElon[i] = coord.lon.value * np.pi/180
        i+=1

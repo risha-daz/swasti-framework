@@ -11,4 +11,4 @@ bs4
 requests
 matplotlib
 html5lib
-git+git://github.com/sunpy/sunpy
+sunpy[all]
