@@ -2,7 +2,6 @@ flask
 datetime
 python-dateutil
 gunicorn
-sunpy==4.0.4
 pfsspy
 numpy
 scipy
@@ -12,3 +11,4 @@ bs4
 requests
 matplotlib
 html5lib
+git+git://github.com/sunpy/sunpy
