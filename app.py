@@ -251,9 +251,9 @@ def home():
                 )
     except KeyError:
         return 'bye'
-class A:
-    def one(port):
-        app.run(port=port)
-        print("something")
+#class A:
+#    def one(port):
+#        app.run(port=port)
+#        print("something")
 
-    one(port=2222)
+#    one(port=2222)
