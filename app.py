@@ -237,7 +237,7 @@ def func(cr):
         return "fail"
     
  
-
+address="https://spacewapi.herokuapp.com/" #"http://127.0.0.1:2222/"
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -253,9 +253,9 @@ def home():
                 "cr number" : cr,
                 "plot" : "Brrss",
                 "message" : "the graphs you requested can be found at the following urls",
-                "Input map":"http://127.0.0.1:2222/getplot/?graph=inp_"+str(cr),
-                "Solar surface map":"http://127.0.0.1:2222/getplot/?graph=outp_"+str(cr),
-                "Solar surface magnetic field":"http://127.0.0.1:2222/getplot/?graph=Brrss_"+str(cr)
+                "Input map":address+"getplot/?graph=inp_"+str(cr),
+                "Solar surface map":address+"getplot/?graph=outp_"+str(cr),
+                "Solar surface magnetic field":address+"getplot/?graph=Brrss_"+str(cr)
              })
         else:
            return flask.jsonify({
@@ -264,6 +264,8 @@ def home():
            
     except KeyError:
         return 'bye'
+    
+
     
 @app.route('/getplot/',methods=['GET'])
 def getplot():
