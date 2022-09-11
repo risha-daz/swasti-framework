@@ -15,6 +15,8 @@ from sunpy.coordinates import sun
 import math
 
 import sunpy
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -35,9 +37,9 @@ import requests
 from bs4 import BeautifulSoup
 import html5lib
 
-#import sys
-#import os
-
+import sys
+import os
+from os.path import exists
 
 def convert(x):
     y=0
@@ -59,16 +61,16 @@ def convert(x):
 
 #%% Enter the CR and magnetogram
 
-def func(cr=2053):
+def func(cr):
     
     URL = "https://gong.nso.edu/data/magmap/crmap.html"
     r = requests.get(URL)
     
-    cr = 2053           # Carrignton rotation number
+    #cr = 2053           # Carrignton rotation number
     mag = 'GONG'        # Magnetogram type (GONG/HMI)
 
     soup = BeautifulSoup(r.content, 'html5lib')
-
+    fileurl=''
     alla=soup.find_all("a", href=True)
     data = '' 
     for data in alla:
@@ -77,7 +79,6 @@ def func(cr=2053):
 
     #%% Magnetogram input for a CR with res = 360 x 180
 
-    mag == 'GONG'
     gong_map = sunpy.map.Map(fileurl)
     #header = sunpy.io.fits.get_header(fileurl)
 
@@ -97,25 +98,27 @@ def func(cr=2053):
     #%% Plotting
 
     # Input map at 1.0 R
-    #m = input.map
-    #fig = plt.figure()
-    #ax = plt.subplot(projection=m)
-    #m.plot(vmax=-50, vmin =50)
-    #plt.colorbar()
-    #ax.set_title('Input field')
-
+    m = input.map
+    fig = plt.figure()
+    ax = plt.subplot(projection=m)
+    m.plot(vmax=-50, vmin =50)
+    plt.colorbar()
+    ax.set_title('Input field')
+    plt.savefig("./static/images/inp_"+str(cr)+".png")
+    plt.close()
     # Output map at 2.5 R
-    #ss_br = output.source_surface_br
-    #fig = plt.figure()
-    #ax = plt.subplot(projection=ss_br)
+    ss_br = output.source_surface_br
+    fig = plt.figure()
+    ax = plt.subplot(projection=ss_br)
 
-    #ss_br.plot()
+    ss_br.plot()
     # Plot the polarity inversion line (i.e. where B changes its sign or where B=0)
-    #ax.plot_coord(output.source_surface_pils[0])
+    ax.plot_coord(output.source_surface_pils[0])
 
-    #plt.colorbar()
-    #ax.set_title('Source surface magnetic field')
-
+    plt.colorbar()
+    ax.set_title('Source surface magnetic field')
+    plt.savefig("./static/images/outp_"+str(cr)+".png")
+    plt.close()
     #%% Calculating coordinate of Earth (SBE points) for each hour of CR
 
     t_start = sunpy.coordinates.sun.carrington_rotation_time(cr)
@@ -158,9 +161,9 @@ def func(cr=2053):
     #%% Generating fieldlines and tracing it
 
     print('\n\nTracing field lines ... ... ...')
-    tracer = tracing.FortranTracer(max_steps=100, step_size=0.03)  # can play around here
+    tracer = tracing.FortranTracer(max_steps=1000, step_size=0.03)  # can play around here
     field_lines = tracer.trace(seeds, output)
-
+   
 
     #%% ############# DONT FOCUS MUCH HERE, JUST ON "Br_rss" list ################# 
     # Solving to get the EXACT required coordinates of required filedlines
@@ -224,14 +227,16 @@ def func(cr=2053):
     ### NOTE: Here, Br_rss is containing 2D magnetic field information, but it's a 1D list.
     #         But you also have the corresponding latitude and longitude list. Use it.
     #%%
-    #plt.scatter(lon_rcp, Br_rss, s=3)
+    plt.scatter(lon_rcp, Br_rss, s=3)
     #plt.show()
-    #plt.savefig("./static/images/output.png")
-    
+    plt.savefig("./static/images/Brrss_"+str(cr)+".png")
+    plt.close()
     if (Br_rss):
         return "success"
     else:
         return "fail"
+    
+ 
 
 app = flask.Flask(__name__)
 
@@ -239,20 +244,41 @@ app = flask.Flask(__name__)
 def home():
     x = str(request.args['text'])
     cr=convert(x)
-    ret=func(int(cr))
-    print(ret)
+    if (not os.path.exists("./static/images/Brrss_"+str(cr)+".png")):
+        ret=func(int(cr))
+    ret="success"
     try:
-        '''if ret=="success":
-            return flask.send_file('./static/images/output.png', mimetype='image/png')
+        if ret=="success":
+            return flask.jsonify({
+                "cr number" : cr,
+                "plot" : "Brrss",
+                "message" : "the graphs you requested can be found at the following urls",
+                "Input map":"http://127.0.0.1:2222/getplot/?graph=inp_"+str(cr),
+                "Solar surface map":"http://127.0.0.1:2222/getplot/?graph=outp_"+str(cr),
+                "Solar surface magnetic field":"http://127.0.0.1:2222/getplot/?graph=Brrss_"+str(cr)
+             })
+        else:
+           return flask.jsonify({
+               "cr number": cr,
+               "message":"there was an error in processing your request"})
+           
+    except KeyError:
+        return 'bye'
+    
+@app.route('/getplot/',methods=['GET'])
+def getplot():
+    loc=str(request.args['graph']).split("_")
+    cr=loc[1]
+    plot=loc[0]
+    url="./static/images/"+str(plot)+"_"+str(cr)+".png"
+    try:
+        if url:
+            return flask.send_file(url, mimetype='image/png')
         else:
             return flask.jsonify(
-                {"cr number" : str(cr),
-                 "ret" : ret}
-                )'''
-        return flask.jsonify(
-            {"cr number" : str(cr),
-             "ret" : ret}
-            )
+                {"cr number" : cr,
+                 "plot" : plot,
+                 "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
 #class A:
