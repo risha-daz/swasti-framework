@@ -250,12 +250,12 @@ def home():
     try:
         if ret=="success":
             return flask.jsonify({
-                "cr number" : cr,
+                "cr_number" : cr,
                 "plot" : "Brrss",
                 "message" : "the graphs you requested can be found at the following urls",
-                "Input map":address+"getplot/?graph=inp_"+str(cr),
-                "Solar surface map":address+"getplot/?graph=outp_"+str(cr),
-                "Solar surface magnetic field":address+"getplot/?graph=Brrss_"+str(cr)
+                "input_map":address+"getplot/?graph=inp_"+str(cr),
+                "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
+                "solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr)
              })
         else:
            return flask.jsonify({
