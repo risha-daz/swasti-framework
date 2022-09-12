@@ -249,7 +249,7 @@ def home():
     ret="success"
     try:
         if ret=="success":
-            return flask.jsonify({
+            response = flask.jsonify({
                 "cr_number" : cr,
                 "plot" : "Brrss",
                 "message" : "the graphs you requested can be found at the following urls",
@@ -257,6 +257,10 @@ def home():
                 "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
                 "solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr)
              })
+
+    # Enable Access-Control-Allow-Origin
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
         else:
            return flask.jsonify({
                "cr number": cr,
@@ -283,9 +287,9 @@ def getplot():
                  "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
-#class A:
-#    def one(port):
-#        app.run(port=port)
-#        print("something")
+'''class A:
+    def one(port):
+        app.run(port=port)
+        print("something")
 
-#    one(port=2222)
+    one(port=2222)'''
