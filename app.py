@@ -237,7 +237,7 @@ def func(cr):
         return "fail"
     
  
-address="http://127.0.0.1:2222/" #"http://127.0.0.1:2222/"
+address="https://spacewapi.herokuapp.com/" #"http://127.0.0.1:2222/"
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -288,9 +288,9 @@ def getplot():
                  "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
-class A:
+'''class A:
     def one(port):
         app.run(port=port)
         print("something")
 
-    one(port=2222)
+    one(port=2222)'''
