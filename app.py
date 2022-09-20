@@ -255,8 +255,11 @@ def home():
                 "message" : "the graphs you requested can be found at the following urls",
                 "input_map":address+"getplot/?graph=inp_"+str(cr),
                 "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
-                "solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr),
-                "velocity_at_1AU":address+"getplot/?graph=velocity_2053.png"
+                #"solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr),
+                "velocity_at_1AU":address+"getplot/?graph=velocity_"+str(cr),
+                "fieldlines":address+"getplot/?graph=fieldlines_"+str(cr),
+                "comparison":address+"getplot/?graph=comparison_"+str(cr),
+                "vel_with_r":address+"getplot/?graph=velwithr_"+str(cr),
              })
 
     # Enable Access-Control-Allow-Origin
