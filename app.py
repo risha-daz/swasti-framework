@@ -244,7 +244,7 @@ app = flask.Flask(__name__)
 def home():
     x = str(request.args['text'])
     cr=convert(x)
-    if (not os.path.exists("./static/images/Brrss_"+str(cr)+".png")):
+    if (not os.path.exists("./static/images/inp_"+str(cr)+".png")):
         ret=func(int(cr))
     ret="success"
     try:
@@ -256,7 +256,7 @@ def home():
                 "input_map":address+"getplot/?graph=inp_"+str(cr),
                 "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
                 #"solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr),
-                "velocity_at_1AU":address+"getplot/?graph=velocity_"+str(cr),
+                "velocity_at_1AU":address+"getplot/?graph=velprofile_"+str(cr),
                 "fieldlines":address+"getplot/?graph=fieldlines_"+str(cr),
                 "comparison":address+"getplot/?graph=comparison_"+str(cr),
                 "vel_with_r":address+"getplot/?graph=velwithr_"+str(cr),
