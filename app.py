@@ -152,8 +152,8 @@ def get_vel(date):
     return v_obs
 
  
-#address="https://spacewapi.herokuapp.com/" 
-address="http://127.0.0.1:2222/"
+address="https://spacewapi.herokuapp.com/" 
+#address="http://127.0.0.1:2222/"
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
