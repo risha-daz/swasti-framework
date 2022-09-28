@@ -41,10 +41,13 @@ import sys
 import os
 from os.path import exists
 
+def get_date(x):
+    return parser.parse(x, fuzzy=True)
+
 def convert(x):
     y=0
     try:
-        y=parser.parse(x, fuzzy=True)
+        y=get_date(x)
     except:
         if("now" in x or "today" in x):
             y=datetime.now()
@@ -61,7 +64,7 @@ def convert(x):
 
 #%% Enter the CR and magnetogram
 
-def func(cr):
+def get_input(cr):
     
     URL = "https://gong.nso.edu/data/magmap/crmap.html"
     r = requests.get(URL)
@@ -119,125 +122,38 @@ def func(cr):
     ax.set_title('Source surface magnetic field')
     plt.savefig("./static/images/outp_"+str(cr)+".png")
     plt.close()
-    #%% Calculating coordinate of Earth (SBE points) for each hour of CR
-
-    t_start = sunpy.coordinates.sun.carrington_rotation_time(cr)
-    t_end = sunpy.coordinates.sun.carrington_rotation_time(cr+1)		
-    dt = t_end - t_start
-
-    n_hr = int(dt.value * 24)   # no. of hours in CR (you can decrease as you wish)
-
-    # Generating evenly spaced grid points for longitude for each hour (excluding last hr)
-    # In carrington frame 0 and 360 represents the same location, that's why we must ignore one
-     
-    SBE_points = n_hr
-    obs_time = t_start + dt*np.linspace(10**(-6), 1-10**(-6), SBE_points, endpoint=False)
-    SBElat = np.zeros(len(obs_time))
-    SBElon = np.zeros(len(obs_time))
-    i = 0
-    for t in obs_time:
-        #obst = Time(t, format='jd')
-       coord = sunpy.coordinates.ephemeris.get_earth(time=t).transform_to(frames.HeliographicCarrington(observer='earth'))
-       #coord2 = sunpy.coordinates.ephemeris.get_earth(time=t).transform_to(output.coordinate_frame)
-       SBElat[i] = coord.lat.value * np.pi/180
-       SBElon[i] = coord.lon.value * np.pi/180
-       i+=1
-
-    # Real date starts from 360 and ends at 0. That's why flipping is required to plot with increasing time
-    SBElon = np.flip(SBElon)
-    SBElat = np.flip(SBElat)
-
-    #%% Generating meshgrid to trace fieldlines
-
-    r = 2.50 * const.R_sun            #setting cusp radius (rcp) to 2.50 Rsun
-
-    lon, lat = SBElon*u.rad, SBElat*u.rad
-    seeds = SkyCoord(lon, lat, r, frame=output.coordinate_frame)
-
-    #Plotting the seed points (SBE points)
-    #plt.scatter(lon*180/np.pi, lat*180/np.pi, s=0.1)
-    #plt.show()
-
-    #%% Generating fieldlines and tracing it
-
-    print('\n\nTracing field lines ... ... ...')
-    tracer = tracing.FortranTracer(max_steps=1000, step_size=0.03)  # can play around here
-    field_lines = tracer.trace(seeds, output)
-   
-
-    #%% ############# DONT FOCUS MUCH HERE, JUST ON "Br_rss" list ################# 
-    # Solving to get the EXACT required coordinates of required filedlines
-
-    Total_field_count = 0
-    Open_field_count = 0
-    Closed_field_count = 0
-
-    #r0 : solar radius
-    lon_open_r0, lat_open_r0 = [], []
-    lon_rcp, lat_rcp = [], []               #rcp : radius of cusp, here 2.50 Rsun
-    Br_r0 = []
-    Br_rss = []         # Magnetic field at 2.5R (i.e. at source surface)
-    exp_factor_pfsspy = []
-    ss_points = []
-
-    for field_line in field_lines:
-        Total_field_count += 1
-        field_coords = field_line.coords
-        field_coords.representation_type = 'spherical'
-        #solving for open fieldlines:-
-        if field_line.is_open:
-            sol_point = field_line.solar_footpoint
-            sol_point.representation_type = 'spherical'
-            lon_open_r0.append(sol_point.lon.value)
-            lat_open_r0.append(sol_point.lat.value)
-            ss_points.append(sol_point.radius/const.R_sun)
-            #Br_r0.append(output.get_bvec(sol_point)[0].value)
-            Open_field_count += 1
-            i = 0                           #radial index to get r = 2.50
-            exp_factor_pfsspy.append(field_line.expansion_factor)
-            radius_ss = field_coords[0].radius.value/const.R_sun.value
-            if radius_ss < 2:               #Case for outgoing fieldlines
-                radius_ss = field_coords[-1].radius.value/const.R_sun.value
-                while radius_ss > 2.51:     #condition to get r = 2.50
-                    radius_ss = field_coords[-i-1].radius.value/const.R_sun.value
-                    i += 1                  #appropriate index = i-1
-                lat_rcp.append(field_coords[-i].lat.value)
-                lon_rcp.append(field_coords[-i].lon.value)
-                Br_rss.append(field_line.b_along_fline[-i][0])
-                #print(field_coords[-i].radius.value/const.R_sun.value)
-            else:                           #Case for incoming fieldlines
-                while radius_ss > 2.51:     #condition to get r = 2.50
-                    radius_ss = field_coords[i].radius.value/const.R_sun.value
-                    i += 1                  #appropriate index = i-1
-                lat_rcp.append(field_coords[i-1].lat.value)
-                lon_rcp.append(field_coords[i-1].lon.value)
-                Br_rss.append(field_line.b_along_fline[i-1][0])
-                #print(field_coords[i-1].radius.value/const.R_sun.value)
-            
-            if field_line.polarity == 1:
-                Br_r0.append(field_line.b_along_fline[1][0])
-                #print(field_coords[1].radius/const.R_sun)
-            elif field_line.polarity == -1:
-                #print(field_coords[-2].radius/const.R_sun)
-                Br_r0.append(field_line.b_along_fline[-2][0])
-        #print(radius_ss)
-
-    #print("\n\nTotal no. fieldlines",Total_field_count, "\nNo. of open fieldlines", Open_field_count)
-
-    ### NOTE: Here, Br_rss is containing 2D magnetic field information, but it's a 1D list.
-    #         But you also have the corresponding latitude and longitude list. Use it.
-    #%%
-    plt.scatter(lon_rcp, Br_rss, s=3)
-    #plt.show()
-    plt.savefig("./static/images/Brrss_"+str(cr)+".png")
-    plt.close()
-    if (Br_rss):
+    
+    if (m):
         return "success"
     else:
         return "fail"
+
+def get_vel(date):
+    URL = "https://omniweb.gsfc.nasa.gov/cgi/nx1.cgi?activity=ftp&res=hour&spacecraft=omni2&start_date="+date+"&end_date="+date+"&maxdays=31&vars=8&vars=9&vars=12&vars=14&vars=22&vars=23&vars=24&scale=Linear&view=0&nsum=1&paper=0&charsize=&xstyle=0&ystyle=0&symbol=0&symsize=&linestyle=solid&table=0&imagex=640&imagey=480&color=&back="
+    r2 = requests.get(URL)
+
+    soup = BeautifulSoup(r2.content, 'html5lib')
+
+    alla=soup.find_all("a", href=True)
+    fileurl = '' 
+    data=''
+    for data in alla:
+    	if('lst' in data['href']) :
+    		fileurl=data['href']
+
+    r3 = requests.get(fileurl, allow_redirects=True)
+    open('temp.txt', 'wb').write(r3.content)
+
+    #%% Calculating velocity
+
+    obs = np.loadtxt('./static/textfiles/temp.txt')
+    v_obs = obs[:, 9]           #remove unwanted velocities
     
+    return v_obs
+
  
-address="https://spacewapi.herokuapp.com/" #"http://127.0.0.1:2222/"
+#address="https://spacewapi.herokuapp.com/" 
+address="http://127.0.0.1:2222/"
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -245,7 +161,7 @@ def home():
     x = str(request.args['text'])
     cr=convert(x)
     if (not os.path.exists("./static/images/inp_"+str(cr)+".png")):
-        ret=func(int(cr))
+        ret=get_input(int(cr))
     ret="success"
     try:
         if ret=="success":
@@ -273,7 +189,57 @@ def home():
     except KeyError:
         return 'bye'
     
+@app.route('/velocity/', methods=['GET'])
+def velocity():
+    x = str(request.args['text'])
+    date=get_date(x)
+    y=str(date)
+    y=y[:4]+y[5:7]+y[8:10]
+    v_obs= get_vel(y)
+    avg_vel=sum(v_obs) / len(v_obs)
+    max_vel=max(v_obs)
+    min_vel=min(v_obs)
+    try:
+        if avg_vel:
+            response = flask.jsonify({
+                "avg_vel" : avg_vel,
+                "min_vel" : min_vel,
+                "max_vel" : max_vel
+             })
+    # Enable Access-Control-Allow-Origin
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
+        else:
+           return flask.jsonify({
+               "date": date,
+               "message":"there was an error in processing your request"})
+           
+    except KeyError:
+        return 'bye'
 
+@app.route('/velocity_plot/', methods=['GET'])
+def velocity_plot():
+    x = str(request.args['text'])
+    date=get_date(x)
+    y=str(date)
+    y=y[:4]+y[5:7]+y[8:10]
+    v_obs= get_vel(y).tolist()
+    try:
+        if v_obs[0]:
+            response = flask.jsonify({
+                "velocity" : v_obs, 
+                "success" : True
+                })
+    # Enable Access-Control-Allow-Origin
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            return response
+        else:
+           return flask.jsonify({
+               "date": date,
+               "message":"there was an error in processing your request"})
+           
+    except KeyError:
+        return 'bye'
     
 @app.route('/getplot/',methods=['GET'])
 def getplot():
@@ -291,9 +257,10 @@ def getplot():
                  "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
-'''class A:
+"""
+class A:
     def one(port):
         app.run(port=port)
         print("something")
 
-    one(port=2222)'''
+    one(port=2222)"""
