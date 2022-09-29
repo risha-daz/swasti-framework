@@ -21,26 +21,14 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
-from scipy import stats
-
-import astropy.units as u
-import astropy.constants as const
-from astropy.coordinates import SkyCoord
 
 import sunpy.map
 import pfsspy
 
-from pfsspy import tracing
-from sunpy.coordinates import frames
-from scipy.interpolate import interp1d
-
 import requests
 from bs4 import BeautifulSoup
-import html5lib
 
-import sys
 import os
-from os.path import exists
 
 def get_date(x):
     return parser.parse(x, fuzzy=True)
@@ -251,7 +239,7 @@ def streamwav():
     v_obs= get_vel(y)
     avg_vel=sum(v_obs) / len(v_obs)
     months=["January","February","March","April","May","June","July","August","September","October","November","December"]
-    spokendate=str(int(y[6:]))+months[int(y[4:6])]+y[:4]
+    spokendate=str(int(y[6:]))+months[int(y[4:6])-1]+y[:4]
     mytext = 'The average velocity on '+spokendate+" is "+str(round(avg_vel,2))+"kilometers per second."
     language = 'en'
     myobj = gTTS(text=mytext, lang=language, slow=False)
