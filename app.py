@@ -13,6 +13,7 @@ from dateutil import parser
 
 from sunpy.coordinates import sun
 import math
+from gtts import gTTS
 
 import sunpy
 import matplotlib
@@ -240,7 +241,30 @@ def velocity_plot():
            
     except KeyError:
         return 'bye'
+
+@app.route("/avgvelocity/")
+def streamwav():
+    x = str(request.args['text'])
+    date=get_date(x)
+    y=str(date)
+    y=y[:4]+y[5:7]+y[8:10]
+    v_obs= get_vel(y)
+    avg_vel=sum(v_obs) / len(v_obs)
+    months=["January","February","March","April","May","June","July","August","September","October","November","December"]
+    spokendate=str(int(y[6:]))+months[int(y[4:6])]+y[:4]
+    mytext = 'The average velocity on '+spokendate+" is "+str(round(avg_vel,2))+"kilometers per second."
+    language = 'en'
+    myobj = gTTS(text=mytext, lang=language, slow=False)
+    myobj.save("./static/audio/welcome.mp3")
     
+    def generate():
+        with open("./static/audio/welcome.mp3", "rb") as fwav:
+            data = fwav.read(1024)
+            while data:
+                yield data
+                data = fwav.read(1024)
+    return flask.Response(generate(), mimetype="audio/mp3")
+
 @app.route('/getplot/',methods=['GET'])
 def getplot():
     loc=str(request.args['graph']).split("_")
@@ -262,5 +286,4 @@ class A:
     def one(port):
         app.run(port=port)
         print("something")
-
     one(port=2222)"""

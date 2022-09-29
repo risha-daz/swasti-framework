@@ -12,3 +12,4 @@ requests
 matplotlib
 html5lib
 sunpy[all]
+gtts
