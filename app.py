@@ -141,9 +141,18 @@ def get_vel(date):
     return v_obs
 
  
-address="https://spacewapi.herokuapp.com/" 
-#address="http://127.0.0.1:2222/"
 app = flask.Flask(__name__)
+
+ENV = 'dev'
+
+if ENV == 'dev':
+    app.debug = True
+    address="http://127.0.0.1:5000/"
+
+else:
+    app.debug = False
+    address="https://spacewapi.herokuapp.com/" 
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -231,7 +240,7 @@ def velocity_plot():
         return 'bye'
 
 @app.route("/avgvelocity/")
-def streamwav():
+def avgvel():
     x = str(request.args['text'])
     date=get_date(x)
     y=str(date)
@@ -239,12 +248,25 @@ def streamwav():
     v_obs= get_vel(y)
     avg_vel=sum(v_obs) / len(v_obs)
     months=["January","February","March","April","May","June","July","August","September","October","November","December"]
-    spokendate=str(int(y[6:]))+months[int(y[4:6])-1]+y[:4]
-    mytext = 'The average velocity on '+spokendate+" is "+str(round(avg_vel,2))+"kilometers per second."
+    spokendate=str(int(y[6:]))+"+"+months[int(y[4:6])-1]+"+"+y[:4]
+    return flask.jsonify({
+        "param":"average velocity",
+        "date" : spokendate,
+        "val":str(round(avg_vel,2))+"km/s",
+        "url":address+"get_audio/?date="+spokendate+"&params=average+velocity&val="+str(round(avg_vel,2))+"+kilometers+per+second.",
+        })
+    
+
+@app.route("/get_audio/")
+def streamwav():
+    date=str(request.args["date"])
+    param=str(request.args["params"])
+    val=str(request.args["val"])
+    mytext = 'The '+param+' on '+date+" is : "+val
+    print(mytext)
     language = 'en'
     myobj = gTTS(text=mytext, lang=language, slow=False)
     myobj.save("./static/audio/welcome.mp3")
-    
     def generate():
         with open("./static/audio/welcome.mp3", "rb") as fwav:
             data = fwav.read(1024)
@@ -275,3 +297,6 @@ class A:
         app.run(port=port)
         print("something")
     one(port=2222)"""
+    
+if __name__=='__main__':
+    app.run()
