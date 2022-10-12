@@ -249,12 +249,14 @@ def avgvel():
     avg_vel=sum(v_obs) / len(v_obs)
     months=["January","February","March","April","May","June","July","August","September","October","November","December"]
     spokendate=str(int(y[6:]))+"+"+months[int(y[4:6])-1]+"+"+y[:4]
-    return flask.jsonify({
+    response=flask.jsonify({
         "param":"average velocity",
         "date" : spokendate,
         "val":str(round(avg_vel,2))+"km/s",
         "url":address+"get_audio/?date="+spokendate+"&params=average+velocity&val="+str(round(avg_vel,2))+"+kilometers+per+second.",
         })
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
     
 
 @app.route("/get_audio/")
