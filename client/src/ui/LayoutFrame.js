@@ -36,7 +36,7 @@ const LayoutFrame = (props) => (
         textAlign: "center",
       }}
     >
-      Ant Design ©2018 Created by Ant UED
+      Footnote ©2022 Footnote
     </Footer>
   </Layout>
 );

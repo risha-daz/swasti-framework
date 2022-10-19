@@ -25,6 +25,7 @@ const useAudio = (url) => {
 };
 
 const AudioPlayer = (props) => {
+  console.log(props.url);
   const [playing, toggle] = useAudio(props.url);
 
   return (
@@ -37,7 +38,10 @@ const AudioPlayer = (props) => {
         size='large'
       />
       <br></br>
-      <h2>Average velocity (test) is test km/sec</h2>
+      <h2>
+        Average velocity on {props.date && props.date.split("+").join(" ")} is{" "}
+        {props.vel ? props.vel : "test"}
+      </h2>
     </div>
   ); /*
   return (

@@ -67,12 +67,10 @@ def get_input(cr):
     data = '' 
     for data in alla:
     	if(str(cr) in data['href']) :
-    		fileurl="https://gong.nso.edu"+data['href']
-
-    #%% Magnetogram input for a CR with res = 360 x 180
-
+            fileurl="https://gong.nso.edu"+data['href']
+    
     gong_map = sunpy.map.Map(fileurl)
-    #header = sunpy.io.fits.get_header(fileurl)
+
 
     # transforming fits file into sunpy map
     input_map = sunpy.map.Map(gong_map.data- np.mean(gong_map.data), gong_map.meta)
@@ -128,12 +126,11 @@ def get_vel(date):
     data=''
     for data in alla:
     	if('lst' in data['href']) :
-    		fileurl=data['href']
-
+            fileurl=data['href']
     r3 = requests.get(fileurl, allow_redirects=True)
     open('./static/textfiles/temp.txt', 'wb').write(r3.content)
 
-    #%% Calculating velocity
+    # Calculating velocity
 
     obs = np.loadtxt('./static/textfiles/temp.txt')
     v_obs = obs[:, 9]           #remove unwanted velocities
@@ -156,7 +153,6 @@ else:
 @app.route('/',methods=['GET'])
 def index():
     return app.send_static_file('index.html')
-
 
 @app.route('/quer/', methods=['GET'])
 def home():
