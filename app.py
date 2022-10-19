@@ -143,7 +143,7 @@ def get_vel(date):
  
 app = flask.Flask(__name__,static_url_path='/',static_folder='./client/build')
 
-ENV = 'dev'
+ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
@@ -297,12 +297,6 @@ def getplot():
                  "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
-"""
-class A:
-    def one(port):
-        app.run(port=port)
-        print("something")
-    one(port=2222)"""
-    
+
 if __name__=='__main__':
     app.run()
