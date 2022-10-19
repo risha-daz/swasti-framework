@@ -9,7 +9,7 @@ import AudioPlayer from "./ui/AudioPlayer";
 const { Panel } = Collapse;
 
 function App(props) {
-  const [graphs, setGraphs] = useState();
+  const [graphs, setGraphs] = useState({});
   const [quer, setQuer] = useState("");
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -36,13 +36,14 @@ function App(props) {
   };
 
   const fetchVelData = async () => {
-    console.log(`https://spacewapi.herokuapp.com/velocity/?text=${quer}`);
+    console.log(`https://spacewapi.herokuapp.com/avgvelocity/?text=${quer}`);
     const res = await fetch(
-      `https://spacewapi.herokuapp.com/velocity/?text=${quer}`
+      `https://spacewapi.herokuapp.com/avgvelocity/?text=${quer}`
     );
     const data = await res.json();
     console.log(data);
     setGraphs(data);
+    setShow(true);
   };
 
   const manualInp = (query) => {
@@ -68,7 +69,7 @@ function App(props) {
       </Collapse>
 
       <Space size='small'>
-        <Button type='primary' onClick={() => setShow(true)}>
+        <Button type='primary' onClick={() => fetchVelData()}>
           Get Graphs
         </Button>
         <Button
@@ -82,9 +83,7 @@ function App(props) {
         </Button>
       </Space>
       {show && (
-        <AudioPlayer
-          url={`https://spacewapi.herokuapp.com/velocity/?text=${quer}`}
-        />
+        <AudioPlayer date={graphs.date} vel={graphs.val} url={graphs.url} />
       )}
       <DisplayFrame graphs={graphs} />
     </Space>
