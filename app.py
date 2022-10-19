@@ -154,7 +154,6 @@ else:
 def index():
     return app.send_static_file('index.html')
 
-
 @app.route('/quer/', methods=['GET'])
 def home():
     x = str(request.args['text'])
@@ -294,6 +293,6 @@ def getplot():
                  "message" : "the graph you requested has either not been computed or doesn't exist"})
     except KeyError:
         return 'bye'
-    
+
 if __name__=='__main__':
     app.run()
