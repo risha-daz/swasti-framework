@@ -141,9 +141,9 @@ def get_vel(date):
     return v_obs
 
  
-app = flask.Flask(__name__)
+app = flask.Flask(__name__,static_url_path='/',static_folder='./client/build')
 
-ENV = 'prod'
+ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
@@ -153,8 +153,12 @@ else:
     app.debug = False
     address="https://spacewapi.herokuapp.com/" 
 
+@app.route('/',methods=['GET'])
+def index():
+    return app.send_static_file('index.html')
 
-@app.route('/', methods=['GET'])
+
+@app.route('/quer/', methods=['GET'])
 def home():
     x = str(request.args['text'])
     cr=convert(x)
