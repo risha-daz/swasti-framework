@@ -1,7 +1,7 @@
 .spyproject/*
 .env
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-./.spyproject
+.spyproject
 
 # dependencies
 /client/node_modules

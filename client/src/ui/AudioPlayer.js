@@ -4,10 +4,14 @@ import { SoundOutlined, SoundFilled } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 
 const useAudio = (url) => {
-  const [audio] = useState(new Audio(url));
+  const [audio, setAudio] = useState(new Audio(url));
   const [playing, setPlaying] = useState(true);
 
   const toggle = () => setPlaying(!playing);
+
+  useEffect(() => {
+    setAudio(new Audio(url));
+  }, [url]);
 
   useEffect(() => {
     playing ? audio.play() : audio.pause();

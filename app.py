@@ -7,7 +7,7 @@ Created on Tue Aug 16 06:26:15 2022
 """
 
 import flask
-from flask import request
+from flask import request, jsonify
 from datetime import datetime
 from dateutil import parser
 
@@ -23,12 +23,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import html5lib
 import sunpy.map
-import pfsspy
-
+from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
 
 import os
+import psycopg2
 
 def get_date(x):
     return parser.parse(x, fuzzy=True)
@@ -53,67 +53,66 @@ def convert(x):
 
 #%% Enter the CR and magnetogram
 
-def get_input(cr):
+# def get_input(cr):
     
-    URL = "https://gong.nso.edu/data/magmap/crmap.html"
-    r = requests.get(URL)
+#     URL = "https://gong.nso.edu/data/magmap/crmap.html"
+#     r = requests.get(URL)
     
-    #cr = 2053           # Carrignton rotation number
-    mag = 'GONG'        # Magnetogram type (GONG/HMI)
+#     #cr = 2053           # Carrignton rotation number
+#     mag = 'GONG'        # Magnetogram type (GONG/HMI)
 
-    soup = BeautifulSoup(r.content, 'html5lib')
-    fileurl=''
-    alla=soup.find_all("a", href=True)
-    data = '' 
-    for data in alla:
-    	if(str(cr) in data['href']) :
-            fileurl="https://gong.nso.edu"+data['href']
+#     soup = BeautifulSoup(r.content, 'html5lib')
+#     fileurl=''
+#     alla=soup.find_all("a", href=True)
+#     data = '' 
+#     for data in alla:
+#     	if(str(cr) in data['href']) :
+#             fileurl="https://gong.nso.edu"+data['href']
     
-    gong_map = sunpy.map.Map(fileurl)
+#     gong_map = sunpy.map.Map(fileurl)
 
 
-    # transforming fits file into sunpy map
-    input_map = sunpy.map.Map(gong_map.data- np.mean(gong_map.data), gong_map.meta)
+#     # transforming fits file into sunpy map
+#     input_map = sunpy.map.Map(gong_map.data- np.mean(gong_map.data), gong_map.meta)
 
-    #%% Define pfsspy Grid
+#     #%% Define pfsspy Grid
 
-    nrho = 100
-    rss = 2.50                      #Setting source surface (ss) = 2.50 Rsun
+#     nrho = 100
+#     rss = 2.50                      #Setting source surface (ss) = 2.50 Rsun
 
-    #%% Solving PFSS model to get the Output at source surface
+#     #%% Solving PFSS model to get the Output at source surface
 
-    input = pfsspy.Input(input_map, nrho, rss)
-    output = pfsspy.pfss(input)
+#     input = pfsspy.Input(input_map, nrho, rss)
+#     output = pfsspy.pfss(input)
 
-    #%% Plotting
 
-    # Input map at 1.0 R
-    m = input.map
-    fig = plt.figure()
-    ax = plt.subplot(projection=m)
-    m.plot(vmax=-50, vmin =50)
-    plt.colorbar()
-    ax.set_title('Input field')
-    plt.savefig("./static/images/inp_"+str(cr)+".png")
-    plt.close()
-    # Output map at 2.5 R
-    ss_br = output.source_surface_br
-    fig = plt.figure()
-    ax = plt.subplot(projection=ss_br)
+#     # Input map at 1.0 R
+#     m = input.map
+#     fig = plt.figure()
+#     ax = plt.subplot(projection=m)
+#     m.plot(vmax=-50, vmin =50)
+#     plt.colorbar()
+#     ax.set_title('Input field')
+#     plt.savefig("./static/images/inp_"+str(cr)+".png")
+#     plt.close()
+#     # Output map at 2.5 R
+#     ss_br = output.source_surface_br
+#     fig = plt.figure()
+#     ax = plt.subplot(projection=ss_br)
 
-    ss_br.plot()
-    # Plot the polarity inversion line (i.e. where B changes its sign or where B=0)
-    ax.plot_coord(output.source_surface_pils[0])
+#     ss_br.plot()
+#     # Plot the polarity inversion line (i.e. where B changes its sign or where B=0)
+#     ax.plot_coord(output.source_surface_pils[0])
 
-    plt.colorbar()
-    ax.set_title('Source surface magnetic field')
-    plt.savefig("./static/images/outp_"+str(cr)+".png")
-    plt.close()
+#     plt.colorbar()
+#     ax.set_title('Source surface magnetic field')
+#     plt.savefig("./static/images/outp_"+str(cr)+".png")
+#     plt.close()
     
-    if (m):
-        return "success"
-    else:
-        return "fail"
+#     if (m):
+#         return "success"
+#     else:
+#         return "fail"
 
 def get_vel(date):
     URL = "https://omniweb.gsfc.nasa.gov/cgi/nx1.cgi?activity=ftp&res=hour&spacecraft=omni2&start_date="+date+"&end_date="+date+"&maxdays=31&vars=8&vars=9&vars=12&vars=14&vars=22&vars=23&vars=24&scale=Linear&view=0&nsum=1&paper=0&charsize=&xstyle=0&ystyle=0&symbol=0&symsize=&linestyle=solid&table=0&imagex=640&imagey=480&color=&back="
@@ -148,44 +147,52 @@ if ENV == 'dev':
 
 else:
     app.debug = False
-    address="https://spacewapi.herokuapp.com/" 
+    address="https://swasti-framework.azurewebsites.net/" 
+
+load_dotenv()
+url= os.getenv("DATABASE_URL")
+connection = psycopg2.connect(url)
+
+HOURLY_DATA="""SELECT speed from obsdata
+WHERE  timestamp < '2022-01-03'::date
+AND    timestamp   >= '2022-01-02'::date;"""
 
 @app.route('/',methods=['GET'])
 def index():
     return app.send_static_file('index.html')
 
-@app.route('/quer/', methods=['GET'])
-def home():
-    x = str(request.args['text'])
-    cr=convert(x)
-    if (not os.path.exists("./static/images/inp_"+str(cr)+".png")):
-        ret=get_input(int(cr))
-    ret="success"
-    try:
-        if ret=="success":
-            response = flask.jsonify({
-                "cr_number" : cr,
-                "plot" : "Brrss",
-                "message" : "the graphs you requested can be found at the following urls",
-                "input_map":address+"getplot/?graph=inp_"+str(cr),
-                "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
-                #"solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr),
-                "velocity_at_1AU":address+"getplot/?graph=velprofile_"+str(cr),
-                "fieldlines":address+"getplot/?graph=fieldlines_"+str(cr),
-                "comparison":address+"getplot/?graph=comparison_"+str(cr),
-                "vel_with_r":address+"getplot/?graph=velwithr_"+str(cr),
-             })
+# @app.route('/quer/', methods=['GET'])
+# def home():
+#     x = str(request.args['text'])
+#     cr=convert(x)
+#     if (not os.path.exists("./static/images/inp_"+str(cr)+".png")):
+#         ret=get_input(int(cr))
+#     ret="success"
+#     try:
+#         if ret=="success":
+#             response = flask.jsonify({
+#                 "cr_number" : cr,
+#                 "plot" : "Brrss",
+#                 "message" : "the graphs you requested can be found at the following urls",
+#                 "input_map":address+"getplot/?graph=inp_"+str(cr),
+#                 "solar_surface_map":address+"getplot/?graph=outp_"+str(cr),
+#                 #"solar_surface_magnetic_field":address+"getplot/?graph=Brrss_"+str(cr),
+#                 "velocity_at_1AU":address+"getplot/?graph=velprofile_"+str(cr),
+#                 "fieldlines":address+"getplot/?graph=fieldlines_"+str(cr),
+#                 "comparison":address+"getplot/?graph=comparison_"+str(cr),
+#                 "vel_with_r":address+"getplot/?graph=velwithr_"+str(cr),
+#              })
 
-    # Enable Access-Control-Allow-Origin
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response
-        else:
-           return flask.jsonify({
-               "cr number": cr,
-               "message":"there was an error in processing your request"})
+#     # Enable Access-Control-Allow-Origin
+#             response.headers.add("Access-Control-Allow-Origin", "*")
+#             return response
+#         else:
+#            return flask.jsonify({
+#                "cr number": cr,
+#                "message":"there was an error in processing your request"})
            
-    except KeyError:
-        return 'bye'
+#     except KeyError:
+#         return 'bye'
     
 @app.route('/velocity/', methods=['GET'])
 def velocity():
@@ -214,6 +221,15 @@ def velocity():
            
     except KeyError:
         return 'bye'
+
+@app.route('/get_obs',methods=['GET'])
+def obs_temp():
+    x = str(request.args['param'])
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(HOURLY_DATA)
+            average = cursor.fetchall()
+    return average
 
 @app.route('/velocity_plot/', methods=['GET'])
 def velocity_plot():

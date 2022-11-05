@@ -1,6 +1,17 @@
-import { InputNumber, DatePicker, Radio } from "antd";
+import {
+  InputNumber,
+  DatePicker,
+  Divider,
+  Radio,
+  Row,
+  Col,
+  Switch,
+  Checkbox,
+} from "antd";
 import { useState } from "react";
-
+const onChange = (checkedValues) => {
+  console.log("checked = ", checkedValues);
+};
 const Graphs = (props) => {
   let month = [
     "january",
@@ -40,12 +51,37 @@ const Graphs = (props) => {
           CR Number
         </Radio>
       </Radio.Group>
-
       {type === 1 ? (
         <DatePicker onChange={onSet} format={"DD/MM/YYYY"} />
       ) : (
         <InputNumber min={1905} max={2255} onChange={onSet} />
       )}
+      <Divider orientation='center'>Select Plasma Properties</Divider>
+      <Switch defaultChecked onChange={onChange} /> Show Graphs
+      <Checkbox.Group
+        style={{
+          width: "100%",
+        }}
+        onChange={onChange}
+      >
+        <Row>
+          <Col span={8}>
+            <Checkbox value='A'>Flow Speed</Checkbox>
+          </Col>
+          <Col span={8}>
+            <Checkbox value='B'>Proton Temperature</Checkbox>
+          </Col>
+          <Col span={8}>
+            <Checkbox value='C'>Proton Density</Checkbox>
+          </Col>
+          <Col span={8}>
+            <Checkbox value='D'>Magnetic Field</Checkbox>
+          </Col>
+          <Col span={8}>
+            <Checkbox value='E'>Flow Pressure</Checkbox>
+          </Col>
+        </Row>
+      </Checkbox.Group>
     </>
   );
 };

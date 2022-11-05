@@ -4,14 +4,13 @@ import { Button, Space, Collapse } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import DisplayFrame from "./ui/DisplayFrame";
 import ManualInput from "./ui/ManualInput";
-import AudioPlayer from "./ui/AudioPlayer";
 
 const { Panel } = Collapse;
 
 function App(props) {
   const [graphs, setGraphs] = useState({});
   const [quer, setQuer] = useState("");
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
   useEffect(() => {
     let final = "";
     props.utterances.forEach((ele) => {
@@ -28,17 +27,23 @@ function App(props) {
   }, [props, props.utterances]);
 
   const fetchData = async () => {
-    console.log(`https://spacewapi.herokuapp.com/?text=${quer}`);
-    const res = await fetch(`https://spacewapi.herokuapp.com/?text=${quer}`);
+    console.log(
+      `https://swasti-framework.azurewebsites.net/quer/?text=${quer}`
+    );
+    const res = await fetch(
+      `https://swasti-framework.azurewebsites.net/quer/?text=${quer}`
+    );
     const data = await res.json();
     console.log(data);
     setGraphs(data);
   };
 
   const fetchVelData = async () => {
-    console.log(`https://spacewapi.herokuapp.com/avgvelocity/?text=${quer}`);
+    console.log(
+      `https://swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`
+    );
     const res = await fetch(
-      `https://spacewapi.herokuapp.com/avgvelocity/?text=${quer}`
+      `https://swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`
     );
     const data = await res.json();
     console.log(data);
@@ -82,10 +87,8 @@ function App(props) {
           Clear
         </Button>
       </Space>
-      {show && (
-        <AudioPlayer date={graphs.date} vel={graphs.val} url={graphs.url} />
-      )}
-      <DisplayFrame graphs={graphs} />
+
+      <DisplayFrame graphs={graphs} show={show} />
     </Space>
   );
 }
