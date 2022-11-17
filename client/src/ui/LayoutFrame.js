@@ -1,5 +1,6 @@
 import { Breadcrumb, Layout, Menu } from "antd";
 import { Recognizer } from "../recognizer";
+import DateWidget from "./DateWidget";
 const { Header, Content, Footer } = Layout;
 const LayoutFrame = (props) => (
   <Layout className='layout'>
@@ -25,7 +26,11 @@ const LayoutFrame = (props) => (
         padding: "0 50px",
       }}
     >
+      {" "}
       <p></p>
+      {/* <div className='site-layout-content'>
+        <DateWidget />
+      </div> */}
       <br />
       <div className='site-layout-content'>
         <Recognizer />

@@ -9,6 +9,7 @@ const { Panel } = Collapse;
 
 function App(props) {
   const [graphs, setGraphs] = useState({});
+  const [graphdata, setGraphdata] = useState({});
   const [quer, setQuer] = useState("");
   const [show, setShow] = useState(true);
   useEffect(() => {
@@ -26,33 +27,22 @@ function App(props) {
     setQuer(final);
   }, [props, props.utterances]);
 
-  const fetchData = async () => {
-    console.log(
-      `https://swasti-framework.azurewebsites.net/quer/?text=${quer}`
-    );
-    const res = await fetch(
-      `https://swasti-framework.azurewebsites.net/quer/?text=${quer}`
-    );
-    const data = await res.json();
-    console.log(data);
-    setGraphs(data);
-  };
+  const fetchData = async () => {};
 
   const fetchVelData = async () => {
-    console.log(
-      `https://swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`
-    );
-    const res = await fetch(
-      `https://swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`
-    );
+    let tempurl = `swasti-framework.azurewebsites.net//?text=${quer}`;
+    const res = await fetch("https://" + tempurl);
     const data = await res.json();
-    console.log(data);
     setGraphs(data);
     setShow(true);
+    const res2 = await fetch(
+      `https://swasti-framework.azurewebsites.net/get_obs?param=${quer}`
+    );
+    const data2 = await res2.json();
+    setGraphdata(data2);
   };
 
   const manualInp = (query) => {
-    console.log(query);
     query && setQuer(query.split("/").join("+"));
   };
 
@@ -88,7 +78,7 @@ function App(props) {
         </Button>
       </Space>
 
-      <DisplayFrame graphs={graphs} show={show} />
+      <DisplayFrame graphs={graphs} show={show} graphdata={graphdata} />
     </Space>
   );
 }

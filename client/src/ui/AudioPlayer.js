@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 const useAudio = (url) => {
   const [audio, setAudio] = useState(new Audio(url));
   const [playing, setPlaying] = useState(true);
-
   const toggle = () => setPlaying(!playing);
 
   useEffect(() => {
     setAudio(new Audio(url));
+    setPlaying(true);
   }, [url]);
 
   useEffect(() => {
@@ -23,14 +23,16 @@ const useAudio = (url) => {
     return () => {
       audio.removeEventListener("ended", () => setPlaying(false));
     };
-  }, []);
+  }, [audio]);
 
   return [playing, toggle];
 };
 
 const AudioPlayer = (props) => {
-  console.log(props.url);
   const [playing, toggle] = useAudio(props.url);
+  useEffect(() => {
+    toggle();
+  }, []);
 
   return (
     <div>
@@ -43,8 +45,9 @@ const AudioPlayer = (props) => {
       />
       <br></br>
       <h2>
-        Average velocity on {props.date && props.date.split("+").join(" ")} is{" "}
-        {props.vel ? props.vel : "test"}
+        Average velocity on{" "}
+        {props.date ? props.date.split("+").join(" ") : "NaN"} is{" "}
+        {props.vel ? props.vel : "NaN"}
       </h2>
     </div>
   ); /*

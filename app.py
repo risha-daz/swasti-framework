@@ -8,6 +8,7 @@ Created on Tue Aug 16 06:26:15 2022
 
 import flask
 from flask import request, jsonify
+import datetime as dt
 from datetime import datetime
 from dateutil import parser
 
@@ -133,8 +134,9 @@ def get_vel(date):
 
     obs = np.loadtxt('./static/textfiles/temp.txt')
     v_obs = obs[:, 9]           #remove unwanted velocities
-    
-    return v_obs
+    t_obs= obs[:, 7]
+    d_obs=obs[:, 8]
+    return v_obs, t_obs, d_obs
 
  
 app = flask.Flask(__name__,static_url_path='/',static_folder='./client/build')
@@ -153,10 +155,13 @@ load_dotenv()
 url= os.getenv("DATABASE_URL")
 connection = psycopg2.connect(url)
 
-HOURLY_DATA="""SELECT speed from obsdata
-WHERE  timestamp < '2022-01-03'::date
-AND    timestamp   >= '2022-01-02'::date;"""
+end_date = dt.date(2022,1,5) #datetime.now()+ dt.timedelta(days=1)
+start_date = dt.date(2022,1,4) #datetime.now()
 
+HOURLY_DATA="""SELECT * from obsdata
+WHERE  timestamp < %s::date
+AND    timestamp   >= %s::date;"""
+print(HOURLY_DATA)
 @app.route('/',methods=['GET'])
 def index():
     return app.send_static_file('index.html')
@@ -194,66 +199,91 @@ def index():
 #     except KeyError:
 #         return 'bye'
     
-@app.route('/velocity/', methods=['GET'])
-def velocity():
-    x = str(request.args['text'])
-    date=get_date(x)
-    y=str(date)
-    y=y[:4]+y[5:7]+y[8:10]
-    v_obs= get_vel(y)
-    avg_vel=sum(v_obs) / len(v_obs)
-    max_vel=max(v_obs)
-    min_vel=min(v_obs)
-    try:
-        if avg_vel:
-            response = flask.jsonify({
-                "avg_vel" : avg_vel,
-                "min_vel" : min_vel,
-                "max_vel" : max_vel
-             })
-    # Enable Access-Control-Allow-Origin
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response
-        else:
-           return flask.jsonify({
-               "date": date,
-               "message":"there was an error in processing your request"})
+# @app.route('/velocity/', methods=['GET'])
+# def velocity():
+#     x = str(request.args['text'])
+#     date=get_date(x)
+#     y=str(date)
+#     y=y[:4]+y[5:7]+y[8:10]
+#     v_obs, t_obs, d_obs= get_vel(y)
+#     avg_vel=sum(v_obs) / len(v_obs)
+#     max_vel=max(v_obs)
+#     min_vel=min(v_obs)
+#     avg_temp=sum(t_obs) / len(t_obs)
+#     max_temp=max(t_obs)
+#     min_temp=min(t_obs)
+#     avg_den=sum(d_obs) / len(d_obs)
+#     max_den=max(d_obs)
+#     min_den=min(d_obs)
+#     try:
+#         if avg_vel:
+#             response = flask.jsonify({
+#                 "avg_vel" : avg_vel,
+#                 "min_vel" : min_vel,
+#                 "max_vel" : max_vel,
+#                 "avg_temp" : avg_temp,
+#                 "min_temp" : min_temp,
+#                 "max_temp" : max_temp,
+#                 "avg_den" : avg_den,
+#                 "min_den" : min_den,
+#                 "max_den" : max_den
+
+#              })
+#     # Enable Access-Control-Allow-Origin
+#             response.headers.add("Access-Control-Allow-Origin", "*")
+#             return response
+#         else:
+#            return flask.jsonify({
+#                "date": date,
+#                "message":"there was an error in processing your request"})
            
-    except KeyError:
-        return 'bye'
+#     except KeyError:
+#         return 'bye'
 
 @app.route('/get_obs',methods=['GET'])
 def obs_temp():
     x = str(request.args['param'])
+    date=get_date(x)
+    end_date=date + dt.timedelta(days=1)
     with connection:
         with connection.cursor() as cursor:
-            cursor.execute(HOURLY_DATA)
+            cursor.execute(HOURLY_DATA, (end_date, date))
             average = cursor.fetchall()
-    return average
+    vel=[]
+    tmp=[]
+    dens=[]
+    for i in range(len(average)):
+        vel.append(average[i][6])
+        tmp.append(average[i][4])
+        dens.append(average[i][5])
+    response=flask.jsonify({"velocity" : vel, "density": dens, "temp" : tmp
+    })
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
-@app.route('/velocity_plot/', methods=['GET'])
-def velocity_plot():
-    x = str(request.args['text'])
-    date=get_date(x)
-    y=str(date)
-    y=y[:4]+y[5:7]+y[8:10]
-    v_obs= get_vel(y).tolist()
-    try:
-        if v_obs[0]:
-            response = flask.jsonify({
-                "velocity" : v_obs, 
-                "success" : True
-                })
-    # Enable Access-Control-Allow-Origin
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            return response
-        else:
-           return flask.jsonify({
-               "date": date,
-               "message":"there was an error in processing your request"})
+# @app.route('/velocity_plot/', methods=['GET'])
+# def velocity_plot():
+#     x = str(request.args['text'])
+#     date=get_date(x)
+#     y=str(date)
+#     y=y[:4]+y[5:7]+y[8:10]
+#     v_obs= get_vel(y).tolist()
+#     try:
+#         if v_obs[0]:
+#             response = flask.jsonify({
+#                 "velocity" : v_obs, 
+#                 "success" : True
+#                 })
+#     # Enable Access-Control-Allow-Origin
+#             response.headers.add("Access-Control-Allow-Origin", "*")
+#             return response
+#         else:
+#            return flask.jsonify({
+#                "date": date,
+#                "message":"there was an error in processing your request"})
            
-    except KeyError:
-        return 'bye'
+#     except KeyError:
+#         return 'bye'
 
 @app.route("/avgvelocity/")
 def avgvel():
@@ -261,14 +291,18 @@ def avgvel():
     date=get_date(x)
     y=str(date)
     y=y[:4]+y[5:7]+y[8:10]
-    v_obs= get_vel(y)
+    v_obs, t_obs, d_obs= get_vel(y)
     avg_vel=sum(v_obs) / len(v_obs)
+    avg_temp=sum(t_obs) / len(t_obs)
+    avg_den=sum(d_obs) / len(d_obs)
     months=["January","February","March","April","May","June","July","August","September","October","November","December"]
     spokendate=str(int(y[6:]))+"+"+months[int(y[4:6])-1]+"+"+y[:4]
     response=flask.jsonify({
-        "param":"average velocity",
+ 
         "date" : spokendate,
         "val":str(round(avg_vel,2))+"km/s",
+        "avg_temp":avg_temp,
+        "avg_den": avg_den,
         "url":address+"get_audio/?date="+spokendate+"&params=average+velocity&val="+str(round(avg_vel,2))+"+kilometers+per+second.",
         })
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -312,3 +346,5 @@ def getplot():
 
 if __name__=='__main__':
     app.run()
+
+# %%

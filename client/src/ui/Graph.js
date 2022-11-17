@@ -1,11 +1,25 @@
 import { Chart as ChartJS, registerables } from "chart.js";
+import { useState, useEffect, useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 import { enGB } from "date-fns/locale";
+
 //this sets the display language. In the documentation it uses "de", which will display dates in German.
 ChartJS.register(...registerables);
 
 function Graph(props) {
+  const ref = useRef();
+  const [state, setState] = useState({});
+  useEffect(() => {
+    setState(props.data);
+  }, [props.data]);
+
+  const updateChart = () => {
+    const chart = ref.current.chartInstance;
+    chart.data.datasets[0].data = state;
+    chart.update();
+  };
+
   var data = {
     labels: [
       "00:00",
@@ -51,17 +65,32 @@ function Graph(props) {
         pointStrokeColor: "#f06c23",
         pointHighlightFill: "#fff000",
         pointHighlightStroke: "#0f6c23",
-        data: [
-          76351.0, 67379.0, 103254.0, 194757.0, 126079.0, 154091.0, 133017.0,
-          111545.0, 150687.0, 119756.0, 117685.0, 134037.0, 133189.0, 119494.0,
-          124221.0, 174084.0, 192606.0, 198896.0, 199941.0, 222916.0, 230637.0,
-          243008.0, 241194.0, 259011.0,
-        ],
+        data: state,
       },
     ],
   };
   var options = {
     responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: props.title,
+        },
+        ticks: {
+          callback: function (val, index) {
+            // Hide every 2nd tick label
+            return val > 10000 ? `${val / 100000}` : val;
+          },
+        },
+      },
+      x: { title: { display: true, text: "Hours of the Day" } },
+    },
     datasetStrokeWidth: 3,
     pointDotStrokeWidth: 4,
     tooltipFillColor: "rgba(0,0,0,0.8)",
@@ -75,7 +104,7 @@ function Graph(props) {
       {props.type == "line" ? (
         <Line options={options} data={data} datasetIdKey='id' />
       ) : (
-        <Bar options={options} data={data} datasetIdKey='id' />
+        <Bar ref={ref} options={options} data={data} datasetIdKey='id' />
       )}
     </>
   );

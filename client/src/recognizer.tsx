@@ -1,22 +1,12 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import styled from "styled-components";
 
 import { createModel, KaldiRecognizer, Model } from "vosk-browser";
 import Microphone from "./microphone";
 import ModelLoader from "./model-loader";
 import App from './App'
+import DateWidget from "./ui/DateWidget";
 
-const Wrapper = styled.div`
-  max-width: 900px;
-  text-align: left;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  margin: auto;
-  justify-content: center;
-  background-color: rgb(255, 255, 255);
-  padding: 5%;
-`;
 
 const Header = styled.div`
   display: flex;
@@ -94,7 +84,7 @@ export const Recognizer: React.FunctionComponent = () => {
   }
 
   return (
-    <Wrapper>
+    <Fragment>
       <ModelLoader
         onModelChange={(path) => setReady(loadedModel?.path === path)}
         onModelSelect={(path) => {
@@ -104,6 +94,7 @@ export const Recognizer: React.FunctionComponent = () => {
         }}
         loading={loading}
       />
+      
       <Header>
         <Microphone recognizer={recognizer} loading={loading} ready={ready} />
       </Header>
@@ -123,6 +114,6 @@ export const Recognizer: React.FunctionComponent = () => {
       </ResultContainer>
       
       <App utterances={utterances} clearVoice={clearVoice}/>
-    </Wrapper>
+    </Fragment>
   );
 };
