@@ -12,18 +12,17 @@ import datetime as dt
 from datetime import datetime
 from dateutil import parser
 
-from sunpy.coordinates import sun
+#from sunpy.coordinates import sun
 import math
 from gtts import gTTS
 
-import sunpy
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
 
 import numpy as np
 import html5lib
-import sunpy.map
+#import sunpy.map
 from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
@@ -34,20 +33,20 @@ import psycopg2
 def get_date(x):
     return parser.parse(x, fuzzy=True)
 
-def convert(x):
-    y=0
-    try:
-        y=get_date(x)
-    except:
-        if("now" in x or "today" in x):
-            y=datetime.now()
-        else:
-            print("date not understood")
+# def convert(x):
+#     y=0
+#     try:
+#         y=get_date(x)
+#     except:
+#         if("now" in x or "today" in x):
+#             y=datetime.now()
+#         else:
+#             print("date not understood")
 
-    if y:
-        return math.floor(sun.carrington_rotation_number(y))
-    else:
-        return 0
+#     if y:
+#         return math.floor(sun.carrington_rotation_number(y))
+#     else:
+#         return 0
 
 
 
@@ -327,22 +326,22 @@ def streamwav():
                 data = fwav.read(1024)
     return flask.Response(generate(), mimetype="audio/mp3")
 
-@app.route('/getplot/',methods=['GET'])
-def getplot():
-    loc=str(request.args['graph']).split("_")
-    cr=loc[1]
-    plot=loc[0]
-    url="./static/images/"+str(plot)+"_"+str(cr)+".png"
-    try:
-        if url:
-            return flask.send_file(url, mimetype='image/png')
-        else:
-            return flask.jsonify(
-                {"cr number" : cr,
-                 "plot" : plot,
-                 "message" : "the graph you requested has either not been computed or doesn't exist"})
-    except KeyError:
-        return 'bye'
+# @app.route('/getplot/',methods=['GET'])
+# def getplot():
+#     loc=str(request.args['graph']).split("_")
+#     cr=loc[1]
+#     plot=loc[0]
+#     url="./static/images/"+str(plot)+"_"+str(cr)+".png"
+#     try:
+#         if url:
+#             return flask.send_file(url, mimetype='image/png')
+#         else:
+#             return flask.jsonify(
+#                 {"cr number" : cr,
+#                  "plot" : plot,
+#                  "message" : "the graph you requested has either not been computed or doesn't exist"})
+#     except KeyError:
+#         return 'bye'
 
 if __name__=='__main__':
     app.run()

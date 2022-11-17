@@ -6,13 +6,8 @@ scipy
 beautifulsoup4
 bs4
 requests
-matplotlib
 guinicorn
 html5lib
 gtts
-sunpy[all]
-flask-sqlalchemy
-flask-marshmallow
-marshmallow-sqlalchemy
 python-dotenv
 psycopg2
