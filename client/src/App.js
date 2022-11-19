@@ -30,7 +30,7 @@ function App(props) {
   const fetchData = async () => {};
 
   const fetchVelData = async () => {
-    let tempurl = `swasti-framework.azurewebsites.net/?text=${quer}`;
+    let tempurl = `swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`;
     const res = await fetch("https://" + tempurl);
     const data = await res.json();
     setGraphs(data);
