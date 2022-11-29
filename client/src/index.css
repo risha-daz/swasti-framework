@@ -44,3 +44,9 @@ code {
   float: right;
   margin: 16px 0 16px 24px;
 }
+
+.site-page-header {
+  background-color: #000c17;
+  color:white;
+  padding:'0px'
+}

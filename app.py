@@ -159,8 +159,14 @@ start_date = dt.date(2022,1,4) #datetime.now()
 
 HOURLY_DATA="""SELECT * from obsdata
 WHERE  timestamp < %s::date
-AND    timestamp   >= %s::date;"""
-print(HOURLY_DATA)
+AND    timestamp   >= %s::date 
+order by timestamp;"""
+#print(HOURLY_DATA)
+CALC_DATA="""SELECT speed from calcdata
+WHERE  timestamp < %s::date
+AND    timestamp   >= %s::date 
+order by timestamp;"""
+
 @app.route('/',methods=['GET'])
 def index():
     return app.send_static_file('index.html')
@@ -255,7 +261,14 @@ def obs_temp():
         vel.append(average[i][6])
         tmp.append(average[i][4])
         dens.append(average[i][5])
-    response=flask.jsonify({"velocity" : vel, "density": dens, "temp" : tmp
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(CALC_DATA, (end_date, date))
+            average = cursor.fetchall()
+    calcvel=[]
+    for i in range(len(average)):
+        calcvel.append(average[i][0])
+    response=flask.jsonify({"velocity" : vel, "density": dens, "temp" : tmp, "calcvel":calcvel
     })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response

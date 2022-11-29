@@ -9,10 +9,16 @@ import {
   Checkbox,
 } from "antd";
 import { useState } from "react";
-const onChange = (checkedValues) => {
-  console.log("checked = ", checkedValues);
-};
-const Graphs = (props) => {
+
+const options = [
+  { label: "Flow Speed", value: "velocity" },
+  { label: "Proton Temperature", value: "temp" },
+  { label: "Proton Density", value: "density" },
+  /*{ label: "Magnetic Field", value: "mag" },
+  { label: "Flow Pressure", value: "pres" },*/
+];
+
+const ManualInput = (props) => {
   let month = [
     "january",
     "february",
@@ -27,6 +33,9 @@ const Graphs = (props) => {
     "november",
     "december",
   ];
+  const onChange = () => {
+    props.setShowGraphs(!props.showGraphs);
+  };
   const [type, setType] = useState(1);
   const onselect = (ele) => {
     setType(ele.target.value);
@@ -47,9 +56,9 @@ const Graphs = (props) => {
         <Radio value={1} onChange={onselect}>
           Date
         </Radio>
-        <Radio value={2} onChange={onselect}>
+        {/* <Radio value={2} onChange={onselect}>
           CR Number
-        </Radio>
+        </Radio> */}
       </Radio.Group>
       {type === 1 ? (
         <DatePicker onChange={onSet} format={"DD/MM/YYYY"} />
@@ -57,33 +66,20 @@ const Graphs = (props) => {
         <InputNumber min={1905} max={2255} onChange={onSet} />
       )}
       <Divider orientation='center'>Select Plasma Properties</Divider>
-      <Switch defaultChecked onChange={onChange} /> Show Graphs
-      <Checkbox.Group
-        style={{
-          width: "100%",
-        }}
+      <Switch
+        defaultChecked
         onChange={onChange}
-      >
-        <Row>
-          <Col span={8}>
-            <Checkbox value='A'>Flow Speed</Checkbox>
-          </Col>
-          <Col span={8}>
-            <Checkbox value='B'>Proton Temperature</Checkbox>
-          </Col>
-          <Col span={8}>
-            <Checkbox value='C'>Proton Density</Checkbox>
-          </Col>
-          <Col span={8}>
-            <Checkbox value='D'>Magnetic Field</Checkbox>
-          </Col>
-          <Col span={8}>
-            <Checkbox value='E'>Flow Pressure</Checkbox>
-          </Col>
-        </Row>
-      </Checkbox.Group>
+        value={props.setShowGraphs}
+      />{" "}
+      Show Graphs
+      <Checkbox.Group
+        options={options}
+        defaultValue={["velocity", "temp", "density"]}
+        onChange={onChange}
+      />
+      <br />
     </>
   );
 };
 
-export default Graphs;
+export default ManualInput;

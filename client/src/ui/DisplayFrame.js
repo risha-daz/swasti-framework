@@ -14,6 +14,7 @@ const operations = (
   </Button>
 );
 const DisplayFrame = (props) => {
+  console.log(Object.keys(props.graphdata).length);
   return (
     <Fragment>
       <Divider orientation='left'>Weather Alerts</Divider>
@@ -88,25 +89,35 @@ const DisplayFrame = (props) => {
           )}
         </Col>
       </Row>
-      <Tabs tabBarExtraContent={operations} defaultActiveKey='1'>
-        <Tabs.TabPane tab='Temperature' key='1'>
-          <Graph data={props.graphdata.temp} title='Temperature (MK)' />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab='Velocity' key='2'>
-          <Graph
-            type='line'
-            data={props.graphdata.velocity}
-            title='Wind Speed (km/s)'
-          />
-        </Tabs.TabPane>
-        <Tabs.TabPane tab='Density' key='3'>
-          <Graph
-            type='line'
-            data={props.graphdata.density}
-            title='Density (n/cc)'
-          />
-        </Tabs.TabPane>
-      </Tabs>
+      {Object.keys(props.graphdata).length !== 0 && (
+        <Tabs tabBarExtraContent={operations} defaultActiveKey='1'>
+          <Tabs.TabPane tab='Temperature' key='1'>
+            <Graph
+              type='bar'
+              data={props.graphdata.temp}
+              title='Temperature (MK)'
+              label='temp'
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab='Velocity' key='2'>
+            <Graph
+              type='line'
+              data={props.graphdata.velocity}
+              data2={props.graphdata.calcvel}
+              title='Wind Speed (km/s)'
+              label='vel'
+            />
+          </Tabs.TabPane>
+          <Tabs.TabPane tab='Density' key='3'>
+            <Graph
+              type='line'
+              data={props.graphdata.density}
+              title='Density (n/cc)'
+              label='dens'
+            />
+          </Tabs.TabPane>
+        </Tabs>
+      )}
     </Fragment>
   );
 };

@@ -1,8 +1,7 @@
 import { Chart as ChartJS, registerables } from "chart.js";
 import { useState, useEffect, useRef } from "react";
-import { Line, Bar } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
-import { enGB } from "date-fns/locale";
 
 //this sets the display language. In the documentation it uses "de", which will display dates in German.
 ChartJS.register(...registerables);
@@ -10,16 +9,27 @@ ChartJS.register(...registerables);
 function Graph(props) {
   const ref = useRef();
   const [state, setState] = useState({});
+  const [calc, setCalc] = useState({});
   useEffect(() => {
     setState(props.data);
-  }, [props.data]);
+    setCalc(props.data2);
+  }, [props.data, props.data2]);
 
   const updateChart = () => {
     const chart = ref.current.chartInstance;
     chart.data.datasets[0].data = state;
     chart.update();
   };
-
+  var mins = {
+    temp: 0,
+    vel: 200,
+    dens: 0,
+  };
+  var maxes = {
+    temp: 500000,
+    vel: 800,
+    dens: 8,
+  };
   var data = {
     labels: [
       "00:00",
@@ -49,6 +59,7 @@ function Graph(props) {
     ],
     datasets: [
       {
+        type: props.type,
         fill: "start",
         backgroundColor: function (context, options) {
           const ctx = context.chart.ctx;
@@ -67,6 +78,13 @@ function Graph(props) {
         pointHighlightStroke: "#0f6c23",
         data: state,
       },
+      {
+        type: "line",
+        label: "Calculated",
+        borderColor: "rgba(0, 0, 0,0.5)",
+        fill: false,
+        data: calc,
+      },
     ],
   };
   var options = {
@@ -78,6 +96,9 @@ function Graph(props) {
     },
     scales: {
       y: {
+        min: mins[props.label],
+        max: maxes[props.label],
+
         title: {
           display: true,
           text: props.title,
@@ -101,10 +122,13 @@ function Graph(props) {
   };
   return (
     <>
-      {props.type == "line" ? (
-        <Line options={options} data={data} datasetIdKey='id' />
-      ) : (
-        <Bar ref={ref} options={options} data={data} datasetIdKey='id' />
+      {props.type && (
+        <Chart
+          type={props.type}
+          options={options}
+          data={data}
+          datasetIdKey='id'
+        />
       )}
     </>
   );

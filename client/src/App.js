@@ -11,7 +11,8 @@ function App(props) {
   const [graphs, setGraphs] = useState({});
   const [graphdata, setGraphdata] = useState({});
   const [quer, setQuer] = useState("");
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
+  const [showGraphs, setShowGraphs] = useState(true);
   useEffect(() => {
     let final = "";
     props.utterances.forEach((ele) => {
@@ -29,22 +30,31 @@ function App(props) {
 
   const fetchData = async () => {};
 
+  const myurl = "swasti-framework.azurewebsites.net"; //"127.0.0.1:5000"; //
+
   const fetchVelData = async () => {
-    let tempurl = `swasti-framework.azurewebsites.net/avgvelocity/?text=${quer}`;
+    let tempurl = `${myurl}/avgvelocity/?text=${quer}`;
     const res = await fetch("https://" + tempurl);
     const data = await res.json();
     setGraphs(data);
     setShow(true);
-    const res2 = await fetch(
-      `https://swasti-framework.azurewebsites.net/get_obs?param=${quer}`
-    );
-    const data2 = await res2.json();
-    setGraphdata(data2);
+    if (showGraphs) {
+      const res2 = await fetch(`https://${myurl}/get_obs?param=${quer}`);
+      const data2 = await res2.json();
+      console.log(data2);
+      setGraphdata(data2);
+    }
   };
 
   const manualInp = (query) => {
     query && setQuer(query.split("/").join("+"));
   };
+
+  // const switched=()=>{
+  //  setShowGraphs(!showGraphs);
+  //  setGraphs({});
+  //  set
+  // }
 
   return (
     <Space
@@ -59,7 +69,11 @@ function App(props) {
       <h4>OR</h4>
       <Collapse defaultActiveKey={["0"]}>
         <Panel header='Manual Input' key='1'>
-          <ManualInput manualInp={manualInp} />
+          <ManualInput
+            manualInp={manualInp}
+            showGraphs={showGraphs}
+            setShowGraphs={setShowGraphs}
+          />
         </Panel>
       </Collapse>
 
