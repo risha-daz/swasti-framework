@@ -71,7 +71,9 @@ const ManualInput = (props) => {
         onChange={onChange}
         value={props.setShowGraphs}
       />{" "}
-      Show Graphs
+      Show Graphs{" "}
+      <Switch defaultChecked onChange={onChange} value={props.setShowGraphs} />{" "}
+      Show Weekly data<br></br>
       <Checkbox.Group
         options={options}
         defaultValue={["velocity", "temp", "density"]}

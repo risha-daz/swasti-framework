@@ -1,5 +1,7 @@
-import { Tabs, Row, Col, Divider, Tag, Button, Badge } from "antd";
+import { Tabs, Row, Col, Divider, Tooltip, Button, Badge } from "antd";
 import { Fragment } from "react";
+import Weekday from "./Weekday";
+import { RightOutlined, LeftOutlined } from "@ant-design/icons";
 import {
   CloseCircleFilled,
   ExclamationCircleFilled,
@@ -118,6 +120,23 @@ const DisplayFrame = (props) => {
           </Tabs.TabPane>
         </Tabs>
       )}
+      <Divider orientation='left'>This Week</Divider>
+      <Row justify='center' gutter={8} align='middle'>
+        <Col span={1}>
+          <Tooltip title='Previous Week'>
+            <Button type='text' shape='circle' icon={<LeftOutlined />} />
+          </Tooltip>
+        </Col>
+        {props.weekly &&
+          props.weekly.map((item, ind) => (
+            <Weekday data={item} ind={ind === 0} key={ind} />
+          ))}
+        <Col span={1}>
+          <Tooltip title='Next Week'>
+            <Button type='text' shape='circle' icon={<RightOutlined />} />
+          </Tooltip>
+        </Col>
+      </Row>
     </Fragment>
   );
 };

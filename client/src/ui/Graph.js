@@ -26,9 +26,9 @@ function Graph(props) {
     dens: 0,
   };
   var maxes = {
-    temp: 500000,
+    temp: 600000,
     vel: 800,
-    dens: 8,
+    dens: 10,
   };
   var data = {
     labels: [

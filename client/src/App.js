@@ -9,6 +9,7 @@ const { Panel } = Collapse;
 
 function App(props) {
   const [graphs, setGraphs] = useState({});
+  const [weekly, setWeek] = useState([]);
   const [graphdata, setGraphdata] = useState({});
   const [quer, setQuer] = useState("");
   const [show, setShow] = useState(false);
@@ -37,13 +38,20 @@ function App(props) {
     const res = await fetch("https://" + tempurl);
     const data = await res.json();
     setGraphs(data);
+    // if (quer.toLowerCase.includes("basic")) {
+    //   setShowGraphs(true);
+    // }
     setShow(true);
-    if (showGraphs) {
-      const res2 = await fetch(`https://${myurl}/get_obs?param=${quer}`);
-      const data2 = await res2.json();
-      console.log(data2);
-      setGraphdata(data2);
-    }
+
+    const res2 = await fetch(`https://${myurl}/get_obs?param=${quer}`);
+    const data2 = await res2.json();
+    console.log(data2);
+    setGraphdata(data2);
+
+    const res3 = await fetch(`http://${myurl}/weekly?param=${quer}`);
+    const data3 = await res3.json();
+    console.log(data3);
+    setWeek(data3.data);
   };
 
   const manualInp = (query) => {
@@ -92,7 +100,12 @@ function App(props) {
         </Button>
       </Space>
 
-      <DisplayFrame graphs={graphs} show={show} graphdata={graphdata} />
+      <DisplayFrame
+        graphs={graphs}
+        show={show}
+        graphdata={graphdata}
+        weekly={weekly}
+      />
     </Space>
   );
 }
