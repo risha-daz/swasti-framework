@@ -48,7 +48,7 @@ function App(props) {
     console.log(data2);
     setGraphdata(data2);
 
-    const res3 = await fetch(`http://${myurl}/weekly?param=${quer}`);
+    const res3 = await fetch(`https://${myurl}/weekly?param=${quer}`);
     const data3 = await res3.json();
     console.log(data3);
     setWeek(data3.data);
