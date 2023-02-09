@@ -1,6 +1,7 @@
 import { Tabs, Row, Col, Divider, Tooltip, Button, Badge } from "antd";
 import { Fragment } from "react";
 import Weekday from "./Weekday";
+import ChartSettings from "./ChartSettings";
 import { RightOutlined, LeftOutlined } from "@ant-design/icons";
 import {
   CloseCircleFilled,
@@ -10,13 +11,9 @@ import {
 } from "@ant-design/icons";
 import Graph from "./Graph";
 import AudioPlayer from "./AudioPlayer";
-const operations = (
-  <Button icon={<SettingOutlined />} size='small'>
-    Chart Settings
-  </Button>
-);
+const operations = <ChartSettings />;
 const DisplayFrame = (props) => {
-  console.log(Object.keys(props.graphdata).length);
+  //console.log(Object.keys(props.graphdata).length);
   return (
     <Fragment>
       <Divider orientation='left'>Weather Alerts</Divider>
@@ -120,6 +117,7 @@ const DisplayFrame = (props) => {
           </Tabs.TabPane>
         </Tabs>
       )}
+
       <Divider orientation='left'>This Week</Divider>
       <Row justify='center' gutter={8} align='middle'>
         <Col span={1}>
@@ -129,7 +127,13 @@ const DisplayFrame = (props) => {
         </Col>
         {props.weekly &&
           props.weekly.map((item, ind) => (
-            <Weekday data={item} ind={ind === 0} key={ind} />
+            <Weekday
+              data={item}
+              ind={ind == props.curr}
+              key={ind}
+              num={ind}
+              setCurr={props.setCurr}
+            />
           ))}
         <Col span={1}>
           <Tooltip title='Next Week'>

@@ -13,7 +13,7 @@ import LayoutFrame from "./ui/LayoutFrame";
 
 
 ReactDOM.render(
-  <React.StrictMode>
+  <>
   
       <LayoutFrame />
       
@@ -22,6 +22,6 @@ ReactDOM.render(
       
 
     
-  </React.StrictMode>,
+  </>,
   document.getElementById("root")
 );

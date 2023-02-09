@@ -66,53 +66,17 @@ WHERE  timestamp < %s::date
 AND    timestamp   >= %s::date 
 order by timestamp;"""
 
-# @app.route('/velocity/', methods=['GET'])
-# def velocity():
-#     x = str(request.args['text'])
-#     date=get_date(x)
-#     y=str(date)
-#     y=y[:4]+y[5:7]+y[8:10]
-#     v_obs, t_obs, d_obs= get_vel(y)
-#     avg_vel=sum(v_obs) / len(v_obs)
-#     max_vel=max(v_obs)
-#     min_vel=min(v_obs)
-#     avg_temp=sum(t_obs) / len(t_obs)
-#     max_temp=max(t_obs)
-#     min_temp=min(t_obs)
-#     avg_den=sum(d_obs) / len(d_obs)
-#     max_den=max(d_obs)
-#     min_den=min(d_obs)
-#     try:
-#         if avg_vel:
-#             response = flask.jsonify({
-#                 "avg_vel" : avg_vel,
-#                 "min_vel" : min_vel,
-#                 "max_vel" : max_vel,
-#                 "avg_temp" : avg_temp,
-#                 "min_temp" : min_temp,
-#                 "max_temp" : max_temp,
-#                 "avg_den" : avg_den,
-#                 "min_den" : min_den,
-#                 "max_den" : max_den
-
-#              })
-#     # Enable Access-Control-Allow-Origin
-#             response.headers.add("Access-Control-Allow-Origin", "*")
-#             return response
-#         else:
-#            return flask.jsonify({
-#                "date": date,
-#                "message":"there was an error in processing your request"})
-           
-#     except KeyError:
-#         return 'bye'
+AVG_VEL="""SELECT
+ROUND(AVG(temperature),2) as temp_avg, ROUND(AVG(speed),2) as vel_avg, ROUND(CAST(AVG(density) as numeric),2) as dens_avg
+FROM obsdata
+WHERE  timestamp < %s::date
+AND    timestamp   >= %s::date;"""
 
 @blueprint.route('/get_obs',methods=['GET'])
 def obs_temp():
     x = str(request.args['param'])
     date=get_date(x)
     end_date=date + dt.timedelta(days=1)
-    end_week=date + dt.timedelta(days=8)
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(HOURLY_DATA, (end_date, date))
@@ -143,19 +107,23 @@ def avgvel():
     date=get_date(x)
     y=str(date)
     y=y[:4]+y[5:7]+y[8:10]
-    v_obs, t_obs, d_obs= get_vel(y)
-    avg_vel=sum(v_obs) / len(v_obs)
-    avg_temp=sum(t_obs) / len(t_obs)
-    avg_den=sum(d_obs) / len(d_obs)
+    end_date=date + dt.timedelta(days=1)
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(AVG_VEL, (end_date, date))
+            average = cursor.fetchall()
+    print(average)
+    avg_vel=average[0][1]
+    avg_temp=average[0][0]
+    avg_den=average[0][2]
     months=["January","February","March","April","May","June","July","August","September","October","November","December"]
     spokendate=str(int(y[6:]))+"+"+months[int(y[4:6])-1]+"+"+y[:4]
     response=flask.jsonify({
- 
-        "date" : spokendate,
-        "val":str(round(avg_vel,2))+"km/s",
-        "avg_temp":avg_temp,
-        "avg_den": avg_den,
-        "url":address+"get_audio/?date="+spokendate+"&params=average+velocity&val="+str(round(avg_vel,2))+"+kilometers+per+second.",
+        "date": spokendate,
+        "val" : str(avg_vel) + " km/s",
+        "avg_temp": avg_temp,
+        "avg_den" : avg_den,
+        "url" : address + "get_audio/?date=" + spokendate + "&params=average+velocity&val=" + str(avg_vel) + "+kilometers+per+second.",
         })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response

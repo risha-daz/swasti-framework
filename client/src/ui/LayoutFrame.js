@@ -1,6 +1,7 @@
 import { Breadcrumb, Layout, Menu, Button, PageHeader } from "antd";
 import { Recognizer } from "../recognizer";
 const { Header, Content, Footer } = Layout;
+
 const LayoutFrame = (props) => {
   const dayNames = [
     "Sunday",

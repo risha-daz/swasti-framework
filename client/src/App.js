@@ -4,16 +4,18 @@ import { Button, Space, Collapse } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import DisplayFrame from "./ui/DisplayFrame";
 import ManualInput from "./ui/ManualInput";
-
+import ChartSettings from "./ui/ChartSettings";
 const { Panel } = Collapse;
 
 function App(props) {
   const [graphs, setGraphs] = useState({});
   const [weekly, setWeek] = useState([]);
   const [graphdata, setGraphdata] = useState({});
+  const [weeklygraphdata, setWeeklyGraphdata] = useState({});
   const [quer, setQuer] = useState("");
   const [show, setShow] = useState(false);
   const [showGraphs, setShowGraphs] = useState(true);
+  const [curr, setCurrent] = useState(0);
   useEffect(() => {
     let final = "";
     props.utterances.forEach((ele) => {
@@ -28,6 +30,12 @@ function App(props) {
     console.log(final);
     setQuer(final);
   }, [props, props.utterances]);
+
+  // useEffect(() => {
+  //   //setCurr(0);
+  //   console.log(curr);
+  //   setGraphdata(weeklygraphdata[curr]);
+  // }, [curr]);
 
   const fetchData = async () => {};
 
@@ -48,10 +56,25 @@ function App(props) {
     console.log(data2);
     setGraphdata(data2);
 
-    const res3 = await fetch(`https://${myurl}/weekly?param=${quer}`);
+    const res3 = await fetch(`https://${myurl}/weekly_outline?param=${quer}`);
     const data3 = await res3.json();
-    console.log(data3);
+    //console.log(data3);
     setWeek(data3.data);
+
+    const res4 = await fetch(`https://${myurl}/weekly_detailed?param=${quer}`);
+    const data4 = await res4.json();
+    console.log(data4.data);
+    setWeeklyGraphdata(data4.data);
+  };
+
+  const setCurr = (num) => {
+    setCurrent(num ? num : 0);
+    //console.log(num);
+    setGraphdata({
+      density: weeklygraphdata[num][2],
+      temp: weeklygraphdata[num][1],
+      velocity: weeklygraphdata[num][0],
+    });
   };
 
   const manualInp = (query) => {
@@ -105,6 +128,8 @@ function App(props) {
         show={show}
         graphdata={graphdata}
         weekly={weekly}
+        setCurr={setCurr}
+        curr={curr}
       />
     </Space>
   );
