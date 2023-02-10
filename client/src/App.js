@@ -74,6 +74,7 @@ function App(props) {
       density: weeklygraphdata[num][2],
       temp: weeklygraphdata[num][1],
       velocity: weeklygraphdata[num][0],
+      dst: weeklygraphdata[num][3],
     });
   };
 

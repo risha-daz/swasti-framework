@@ -24,11 +24,13 @@ function Graph(props) {
     temp: 0,
     vel: 200,
     dens: 0,
+    dst: -10,
   };
   var maxes = {
     temp: 600000,
     vel: 800,
     dens: 10,
+    dst: 10,
   };
   var data = {
     labels: [
@@ -61,14 +63,17 @@ function Graph(props) {
       {
         type: props.type,
         fill: "start",
-        backgroundColor: function (context, options) {
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 380);
-          gradient.addColorStop(0, "rgba(210, 43, 43,1)");
-          //gradient.addColorStop(0.6, "rgba(253, 218, 13,0.75)");
-          gradient.addColorStop(1, "rgba(0, 150, 255,0.5)");
-          return gradient;
-        },
+        backgroundColor:
+          props.label === "dst"
+            ? "rgba(211, 211, 211,0.5)"
+            : function (context, options) {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, 0, 380);
+                gradient.addColorStop(0, "rgba(210, 43, 43,1)");
+                //gradient.addColorStop(0.6, "rgba(253, 218, 13,0.75)");
+                gradient.addColorStop(1, "rgba(0, 150, 255,0.5)");
+                return gradient;
+              },
 
         borderRadius: 20,
         strokeColor: "#ff6c23",

@@ -118,6 +118,10 @@ const DisplayFrame = (props) => {
             <Graph
               type='line'
               data={props.graphdata.dst}
+              data2={[
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0,
+              ]}
               title='Density (nT)'
               label='dst'
             />

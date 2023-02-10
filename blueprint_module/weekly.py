@@ -25,7 +25,7 @@ GROUP BY 1 ORDER BY timestamp;"""
 
 WEEKLY_DATA="""SELECT
   timestamp, 
-  temperature, speed, density
+  temperature, speed, density, dst
 FROM obsdata
 WHERE  timestamp < %s::date
 AND    timestamp   >= %s::date
@@ -58,11 +58,13 @@ def weekly_detailed():
         vel=[]
         tmp=[]
         dens=[]
+        dst=[]
         for j in range(24):
             k=i*24 + j
             vel.append(average[k][2])
             tmp.append(average[k][1])
             dens.append(average[k][3])
+            dens.append(average[k][4])
         fin.append([vel,tmp,dens])
     
     response=flask.jsonify({"data":fin})
