@@ -84,9 +84,11 @@ def obs_temp():
     vel=[]
     tmp=[]
     dens=[]
+    dst=[]
     for i in range(len(average)):
         vel.append(average[i][6])
         tmp.append(average[i][4])
+        dst.append(average[i][7])
         dens.append(average[i][5])
     with connection:
         with connection.cursor() as cursor:
@@ -95,7 +97,7 @@ def obs_temp():
     calcvel=[]
     for i in range(len(average)):
         calcvel.append(average[i][0])
-    response=flask.jsonify({"velocity" : vel, "density": dens, "temp" : tmp, "calcvel":calcvel
+    response=flask.jsonify({"velocity" : vel, "density": dens, "temp" : tmp, "calcvel":calcvel, "dst":dst
     })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response

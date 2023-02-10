@@ -7,7 +7,6 @@ import {
   CloseCircleFilled,
   ExclamationCircleFilled,
   CheckCircleFilled,
-  SettingOutlined,
 } from "@ant-design/icons";
 import Graph from "./Graph";
 import AudioPlayer from "./AudioPlayer";
@@ -115,6 +114,14 @@ const DisplayFrame = (props) => {
               label='dens'
             />
           </Tabs.TabPane>
+          <Tabs.TabPane tab='Dst Index' key='4'>
+            <Graph
+              type='line'
+              data={props.graphdata.dst}
+              title='Density (nT)'
+              label='dst'
+            />
+          </Tabs.TabPane>
         </Tabs>
       )}
 
@@ -129,7 +136,7 @@ const DisplayFrame = (props) => {
           props.weekly.map((item, ind) => (
             <Weekday
               data={item}
-              ind={ind == props.curr}
+              ind={ind === props.curr}
               key={ind}
               num={ind}
               setCurr={props.setCurr}
