@@ -2,7 +2,12 @@ import { Tabs, Row, Col, Divider, Tooltip, Button, Badge } from "antd";
 import { Fragment } from "react";
 import Weekday from "./Weekday";
 import ChartSettings from "./ChartSettings";
-import { RightOutlined, LeftOutlined } from "@ant-design/icons";
+import {
+  RightOutlined,
+  LeftOutlined,
+  InfoCircleFilled,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import {
   CloseCircleFilled,
   ExclamationCircleFilled,
@@ -114,7 +119,27 @@ const DisplayFrame = (props) => {
               label='dens'
             />
           </Tabs.TabPane>
-          <Tabs.TabPane tab='Dst Index' key='4'>
+          <Tabs.TabPane
+            tab={
+              <span>
+                Dst Index
+                <Tooltip
+                  placement='rightTop'
+                  title={
+                    "Sudden changes in Dst Index indicate unfavourable conditions"
+                  }
+                >
+                  {" "}
+                  <Button
+                    type='text'
+                    icon={<InfoCircleOutlined />}
+                    size='small'
+                  />
+                </Tooltip>
+              </span>
+            }
+            key='4'
+          >
             <Graph
               type='line'
               data={props.graphdata.dst}
